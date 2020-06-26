@@ -1,21 +1,26 @@
+
+sudo: required
 language: java
+
 jdk:
-  - oraclejdk8
-install:
-  - sh -c 'mvn install -DskipTests=true'
-  - sh -c 'cd jOOQ-examples/jOOQ-spring-example && mvn install -DskipTests=true'
-  - sh -c 'cd jOOQ-examples/jOOQ-spring-boot-example && mvn install -DskipTests=true'
-  - sh -c 'cd jOOQ-examples/jOOQ-flyway-example && mvn install -DskipTests=true'
-  - sh -c 'cd jOOQ-examples/jOOQ-nashorn-example && mvn install -DskipTests=true'
-  - sh -c 'cd jOOQ-examples/jOOQ-spring-guice-example && mvn install -DskipTests=true'
-  - sh -c 'cd jOOQ-examples/jOOQ-codegen-gradle && gradle build'
+  - openjdk8
+
 script:
-  - sh -c 'mvn test'
-  - sh -c 'cd jOOQ-examples/jOOQ-spring-example && mvn test'
-  - sh -c 'cd jOOQ-examples/jOOQ-spring-boot-example && mvn test'
-  - sh -c 'cd jOOQ-examples/jOOQ-flyway-example && mvn test'
-  - sh -c 'cd jOOQ-examples/jOOQ-nashorn-example && mvn test'
-  - sh -c 'cd jOOQ-examples/jOOQ-spring-guice-example && mvn test'
-cache:
-  directories:
-    - $HOME/.m2/repository
+  - mvn -DskipTests=true package
+
+before_deploy:
+    - mkdir MiningBuild
+    - find . -name '*.jar' -exec cp {} ./MiningBuild \;
+    - cd /home/travis/build/galilasmb/jOOQ/MiningBuild
+    - tar -zcvf result.tar.gz *
+deploy:
+  provider: releases
+  api_key: $GITHUB_TOKEN
+  file: result.tar.gz
+  name: fetchjar-791f2b353972bf486d454d0732b06ca12eb0430a
+  file_glob: true
+  overwrite: false
+  skip_cleanup: true
+  on:
+    all_branches: true 
+            
